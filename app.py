@@ -1,7 +1,6 @@
 import io
 import os
 import tempfile
-from pathlib import Path
 
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
@@ -34,45 +33,80 @@ FONT_REGULAR = [
 
 
 def get_font(size, bold=True):
+
     paths = FONT_BOLD if bold else FONT_REGULAR
 
     for path in paths:
+
         if os.path.exists(path):
-            return ImageFont.truetype(path, size=size)
+
+            return ImageFont.truetype(
+                path,
+                size=size
+            )
 
     return ImageFont.load_default()
 
 
-def fit_font(text, max_width, start_size=60, min_size=18, bold=True):
+def fit_font(
+    text,
+    max_width,
+    start_size=60,
+    min_size=18,
+    bold=True
+):
+
     text = str(text)
 
     size = start_size
 
     while size >= min_size:
-        font = get_font(size, bold)
 
-        box = font.getbbox(text)
+        font = get_font(
+            size,
+            bold
+        )
+
+        box = font.getbbox(
+            text
+        )
+
         width = box[2] - box[0]
 
         if width <= max_width:
+
             return font
 
         size -= 2
 
-    return get_font(min_size, bold)
+    return get_font(
+        min_size,
+        bold
+    )
 
 
-def wrap_text(draw, text, font, max_width):
+def wrap_text(
+    draw,
+    text,
+    font,
+    max_width
+):
+
     text = str(text)
 
     words = text.split()
 
     lines = []
+
     current = ""
 
     for word in words:
 
-        trial = word if not current else current + " " + word
+        trial = (
+            word
+            if not current
+            else current + " " + word
+        )
 
         box = draw.textbbox(
             (0, 0),
@@ -83,17 +117,24 @@ def wrap_text(draw, text, font, max_width):
         width = box[2] - box[0]
 
         if width <= max_width:
+
             current = trial
 
         else:
 
             if current:
-                lines.append(current)
+
+                lines.append(
+                    current
+                )
 
             current = word
 
     if current:
-        lines.append(current)
+
+        lines.append(
+            current
+        )
 
     return lines
 
@@ -106,6 +147,7 @@ def rounded_rectangle(
     outline=None,
     width=1
 ):
+
     draw.rounded_rectangle(
         xy,
         radius=radius,
@@ -115,9 +157,14 @@ def rounded_rectangle(
     )
 
 
-def fit_crop(img, size):
+def fit_crop(
+    img,
+    size
+):
 
-    img = img.convert("RGB")
+    img = img.convert(
+        "RGB"
+    )
 
     target_w, target_h = size
 
@@ -126,16 +173,26 @@ def fit_crop(img, size):
         target_h / img.height
     )
 
-    new_w = int(img.width * ratio)
-    new_h = int(img.height * ratio)
+    new_w = int(
+        img.width * ratio
+    )
+
+    new_h = int(
+        img.height * ratio
+    )
 
     img = img.resize(
         (new_w, new_h),
         Image.Resampling.LANCZOS
     )
 
-    left = (new_w - target_w) // 2
-    top = (new_h - target_h) // 2
+    left = (
+        new_w - target_w
+    ) // 2
+
+    top = (
+        new_h - target_h
+    ) // 2
 
     return img.crop(
         (
@@ -147,9 +204,15 @@ def fit_crop(img, size):
     )
 
 
-def fit_contain(img, size, bg=(255, 255, 255)):
+def fit_contain(
+    img,
+    size,
+    bg=(255, 255, 255)
+):
 
-    img = img.convert("RGBA")
+    img = img.convert(
+        "RGBA"
+    )
 
     target_w, target_h = size
 
@@ -199,7 +262,9 @@ def draw_image_collage(
     h
 ):
 
-    draw = ImageDraw.Draw(canvas)
+    draw = ImageDraw.Draw(
+        canvas
+    )
 
     if not images:
 
@@ -219,7 +284,9 @@ def draw_image_collage(
 
         text = "UPLOAD PROJECT IMAGES"
 
-        font = get_font(34)
+        font = get_font(
+            34
+        )
 
         box = draw.textbbox(
             (0, 0),
@@ -227,13 +294,22 @@ def draw_image_collage(
             font=font
         )
 
-        text_w = box[2] - box[0]
-        text_h = box[3] - box[1]
+        text_w = (
+            box[2] -
+            box[0]
+        )
+
+        text_h = (
+            box[3] -
+            box[1]
+        )
 
         draw.text(
             (
-                x + (w - text_w) / 2,
-                y + (h - text_h) / 2
+                x +
+                (w - text_w) / 2,
+                y +
+                (h - text_h) / 2
             ),
             text,
             font=font,
@@ -242,11 +318,13 @@ def draw_image_collage(
 
         return
 
-    n = len(images)
+    number = len(
+        images
+    )
 
     gap = 12
 
-    if n == 1:
+    if number == 1:
 
         tiles = [
             (
@@ -257,9 +335,11 @@ def draw_image_collage(
             )
         ]
 
-    elif n == 2:
+    elif number == 2:
 
-        left_w = (w - gap) // 2
+        left_w = (
+            w - gap
+        ) // 2
 
         tiles = [
             (
@@ -269,22 +349,39 @@ def draw_image_collage(
                 h
             ),
             (
-                x + left_w + gap,
+                x +
+                left_w +
+                gap,
                 y,
-                w - left_w - gap,
+                w -
+                left_w -
+                gap,
                 h
             )
         ]
 
-    elif n == 3:
+    elif number == 3:
 
-        left_w = int(w * 0.47)
+        left_w = int(
+            w * 0.47
+        )
 
-        right_x = x + left_w + gap
+        right_x = (
+            x +
+            left_w +
+            gap
+        )
 
-        right_w = w - left_w - gap
+        right_w = (
+            w -
+            left_w -
+            gap
+        )
 
-        half_h = (h - gap) // 2
+        half_h = (
+            h -
+            gap
+        ) // 2
 
         tiles = [
             (
@@ -301,7 +398,9 @@ def draw_image_collage(
             ),
             (
                 right_x,
-                y + half_h + gap,
+                y +
+                half_h +
+                gap,
                 right_w,
                 half_h
             )
@@ -309,13 +408,26 @@ def draw_image_collage(
 
     else:
 
-        left_w = int(w * 0.46)
+        left_w = int(
+            w * 0.46
+        )
 
-        right_x = x + left_w + gap
+        right_x = (
+            x +
+            left_w +
+            gap
+        )
 
-        right_w = w - left_w - gap
+        right_w = (
+            w -
+            left_w -
+            gap
+        )
 
-        half_h = (h - gap) // 2
+        half_h = (
+            h -
+            gap
+        ) // 2
 
         tiles = [
             (
@@ -332,18 +444,24 @@ def draw_image_collage(
             ),
             (
                 right_x,
-                y + half_h + gap,
+                y +
+                half_h +
+                gap,
                 right_w,
                 half_h
             )
         ]
 
-    for i, box in enumerate(tiles):
+    for i, tile_box in enumerate(
+        tiles
+    ):
 
-        image = images[i % len(images)]
+        image = images[
+            i % len(images)
+        ]
 
-        tile_w = box[2]
-        tile_h = box[3]
+        tile_w = tile_box[2]
+        tile_h = tile_box[3]
 
         tile = fit_crop(
             image,
@@ -362,7 +480,9 @@ def draw_image_collage(
             0
         )
 
-        mask_draw = ImageDraw.Draw(mask)
+        mask_draw = ImageDraw.Draw(
+            mask
+        )
 
         mask_draw.rounded_rectangle(
             (
@@ -378,8 +498,8 @@ def draw_image_collage(
         canvas.paste(
             tile,
             (
-                box[0],
-                box[1]
+                tile_box[0],
+                tile_box[1]
             ),
             mask
         )
@@ -410,14 +530,19 @@ def build_cover(
         "white"
     )
 
-    draw = ImageDraw.Draw(canvas)
+    draw = ImageDraw.Draw(
+        canvas
+    )
 
-    for yy in range(H):
+    for yy in range(
+        H
+    ):
 
         t = yy / H
 
         c = int(
-            255 - 14 * t
+            255 -
+            14 * t
         )
 
         draw.line(
@@ -429,36 +554,72 @@ def build_cover(
             ),
             fill=(
                 c,
-                min(255, c + 1),
+                min(
+                    255,
+                    c + 1
+                ),
                 255
             )
         )
 
     draw.polygon(
         [
-            (1550, 0),
-            (W, 0),
-            (W, 900),
-            (1760, 690)
+            (
+                1550,
+                0
+            ),
+            (
+                W,
+                0
+            ),
+            (
+                W,
+                900
+            ),
+            (
+                1760,
+                690
+            )
         ],
         fill="#EDF4FA"
     )
 
     draw.polygon(
         [
-            (1780, 0),
-            (W, 0),
-            (W, 760)
+            (
+                1780,
+                0
+            ),
+            (
+                W,
+                0
+            ),
+            (
+                W,
+                760
+            )
         ],
         fill="#E7F0F8"
     )
 
     draw.polygon(
         [
-            (0, 1180),
-            (350, 880),
-            (650, 1150),
-            (300, 1500)
+            (
+                0,
+                1180
+            ),
+            (
+                350,
+                880
+            ),
+            (
+                650,
+                1150
+            ),
+            (
+                300,
+                1500
+            )
         ],
         fill="#F4F8FB"
     )
@@ -519,9 +680,14 @@ def build_cover(
         font=hf
     )
 
-    hw = hb[2] - hb[0]
+    hw = (
+        hb[2] -
+        hb[0]
+    )
 
-    hx = (W - hw) // 2
+    hx = (
+        W - hw
+    ) // 2
 
     hy = 180
 
@@ -532,11 +698,15 @@ def build_cover(
                 hy + 20
             ),
             (
-                hx + hw + 80,
+                hx +
+                hw +
+                80,
                 hy + 20
             ),
             (
-                hx + hw + 105,
+                hx +
+                hw +
+                105,
                 hy + 130
             ),
             (
@@ -554,11 +724,15 @@ def build_cover(
                 hy
             ),
             (
-                hx + hw + 70,
+                hx +
+                hw +
+                70,
                 hy
             ),
             (
-                hx + hw + 95,
+                hx +
+                hw +
+                95,
                 hy + 100
             ),
             (
@@ -604,7 +778,10 @@ def build_cover(
     ).strip()
 
     if not project_name:
-        project_name = "PROJECT NAME"
+
+        project_name = (
+            "PROJECT NAME"
+        )
 
     pf = fit_font(
         project_name,
@@ -621,7 +798,9 @@ def build_cover(
         bw - 90
     )
 
-    box = pf.getbbox("Ag")
+    box = pf.getbbox(
+        "Ag"
+    )
 
     line_h = (
         box[3] -
@@ -674,7 +853,10 @@ def build_cover(
         font=rf
     )
 
-    rw = rb[2] - rb[0]
+    rw = (
+        rb[2] -
+        rb[0]
+    )
 
     draw.text(
         (
@@ -691,6 +873,7 @@ def build_cover(
     ).strip()
 
     if not date_text:
+
         date_text = "Aug, 2026"
 
     df = fit_font(
@@ -707,7 +890,10 @@ def build_cover(
         font=df
     )
 
-    dw = db[2] - db[0]
+    dw = (
+        db[2] -
+        db[0]
+    )
 
     rounded_rectangle(
         draw,
@@ -790,7 +976,9 @@ def build_cover(
         fill=NAVY
     )
 
-    submitted_text = "SUBMITTED BY"
+    submitted_text = (
+        "SUBMITTED BY"
+    )
 
     sf = get_font(
         46,
@@ -819,6 +1007,7 @@ def build_cover(
     )
 
     if not companies:
+
         companies = [
             {
                 "name": "",
@@ -829,15 +1018,22 @@ def build_cover(
 
     companies = companies[:5]
 
-    n = len(companies)
+    n = len(
+        companies
+    )
 
     col_w = (
         W - 90
     ) // n
 
-    for i, company in enumerate(companies):
+    for i, company in enumerate(
+        companies
+    ):
 
-        cx = 45 + i * col_w
+        cx = (
+            45 +
+            i * col_w
+        )
 
         if i:
 
@@ -883,7 +1079,10 @@ def build_cover(
         ).strip()
 
         if not name:
-            name = "COMPANY NAME"
+
+            name = (
+                "COMPANY NAME"
+            )
 
         role = str(
             company.get(
@@ -969,20 +1168,28 @@ def build_cover(
     return canvas
 
 
-def image_from_upload(upload):
+def image_from_upload(
+    upload
+):
 
     if upload is None:
+
         return None
 
     try:
+
         return Image.open(
             upload
         ).convert("RGBA")
+
     except Exception:
+
         return None
 
 
-def make_docx(image):
+def make_docx(
+    image
+):
 
     output = io.BytesIO()
 
@@ -1005,36 +1212,64 @@ def make_docx(image):
 
         section = doc.sections[0]
 
-        section.page_width = Inches(8.5)
-        section.page_height = Inches(11.69)
+        section.page_width = Inches(
+            8.5
+        )
 
-        section.top_margin = Inches(0)
-        section.bottom_margin = Inches(0)
-        section.left_margin = Inches(0)
-        section.right_margin = Inches(0)
+        section.page_height = Inches(
+            11.69
+        )
 
-        paragraph = doc.paragraphs[0]
+        section.top_margin = Inches(
+            0
+        )
+
+        section.bottom_margin = Inches(
+            0
+        )
+
+        section.left_margin = Inches(
+            0
+        )
+
+        section.right_margin = Inches(
+            0
+        )
+
+        paragraph = doc.add_paragraph()
 
         paragraph.paragraph_format.space_before = 0
+
         paragraph.paragraph_format.space_after = 0
+
+        paragraph.paragraph_format.line_spacing = 1
 
         run = paragraph.add_run()
 
         run.add_picture(
             tmp_path,
-            width=Inches(8.5)
+            width=Inches(
+                8.5
+            )
         )
 
-        doc.save(output)
+        doc.save(
+            output
+        )
 
     finally:
 
-        try:
-            os.unlink(tmp_path)
-        except Exception:
-            pass
+        if os.path.exists(
+            tmp_path
+        ):
 
-    output.seek(0)
+            os.remove(
+                tmp_path
+            )
+
+    output.seek(
+        0
+    )
 
     return output
 
@@ -1068,35 +1303,27 @@ with st.sidebar:
     project_name = st.text_area(
         "Project Name",
         height=140,
-        value=(
-            "Consulting Services for Maritime Diagnosis and "
-            "Modelling, Study and Alternatives, Executive Project "
-            "and Environmental and Social Studies, for the "
-            "Construction of the Coastal Protection Infrastructure, "
-            "Rehabilitation and Requalification of the Marginal "
-            "of the Municipality of the City of Vilankulo, "
-            "Inhambane Province"
-        )
+        placeholder="Enter complete project name..."
     )
 
     reference = st.text_input(
         "Reference No.",
-        "MZ-MEF-DNT-556716-CS-QCBS"
+        placeholder="Enter reference number..."
     )
 
     date_text = st.text_input(
         "Date",
-        "Aug, 2026"
+        placeholder="e.g. Aug, 2026"
     )
 
     client_name = st.text_input(
         "Client / Government",
-        ""
+        placeholder="Enter client name..."
     )
 
     funding_name = st.text_input(
         "Funding / Bank",
-        ""
+        placeholder="Enter funding agency..."
     )
 
     st.header(
@@ -1139,6 +1366,7 @@ with st.sidebar:
     )
 
     if image_files:
+
         image_files = image_files[:4]
 
     st.header(
@@ -1173,7 +1401,8 @@ with st.sidebar:
 
         company_name = st.text_input(
             "Company Name",
-            key=f"company_name_{i}"
+            key=f"company_name_{i}",
+            placeholder="Enter company name..."
         )
 
         company_role = st.selectbox(
@@ -1229,9 +1458,29 @@ if image_files:
         )
 
         if image:
+
             project_images.append(
                 image
             )
+
+
+if not project_name:
+
+    project_name = (
+        "PROJECT NAME"
+    )
+
+if not reference:
+
+    reference = (
+        "REFERENCE NUMBER"
+    )
+
+if not date_text:
+
+    date_text = (
+        "AUG, 2026"
+    )
 
 
 cover = build_cover(
@@ -1305,10 +1554,10 @@ with right_column:
         use_container_width=True
     )
 
-    st.markdown("---")
+    st.markdown(
+        "---"
+    )
 
-    st.info(
-        "The current version creates the complete cover as a "
-        "high-resolution image and places it into Word. This "
-        "keeps the layout consistent across different computers."
+    st.success(
+        "Cover generated successfully."
     )
